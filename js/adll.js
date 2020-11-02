@@ -1,17 +1,22 @@
-//alert("you have successfully loaded the javascript file!");
-//Load more posts button
-var tempButton,
-    ajaxCounter = 0;
 jQuery(document).ready(function() {
-    //var tempButton;
+    //Load more posts button
+var morePostsBtn = jQuery( '#more-posts-button' );
+    console.log(morePostsBtn);
+    //MORE POSTS BUTTON
+    jQuery( '#more-posts-button' ).on("click", function( e ) {
+        e.preventDefault(); 
+        jQuery('.anim-loading').addClass( 'spinner' );
+        nonce = jQuery(this).attr("data-nonce");
+        ajax_next_posts(); 
+    }); 
     
-   jQuery( '#more-posts-button' ).on("click", function( e ) {
-    e.preventDefault(); 
-    jQuery('.anim-loading').addClass( 'spinner' );
-    nonce = jQuery(this).attr("data-nonce");
-    ajax_next_posts(); 
-   }); 
-    
+        //CATEGORY FILTER
+        jQuery( '#categoryFilter' ).on('click', function(e){
+            console.log("button clicked!!");
+            e.preventDefault();
+            nonce = jQuery('#more-posts-button').attr("data-nonce");
+            filter_posts();
+        });
         if (!sessionStorage) {
             return;
         }
@@ -19,62 +24,100 @@ jQuery(document).ready(function() {
         var parsedHtml = JSON.parse(savedHtml);
         jQuery(".grid-container").append( parsedHtml.html );
         moveButton();
-    
-});
 
-    function ajax_next_posts() {
 
-        var postOffset = jQuery( '.outer' ).length;
-        var postsPerPage = 16;
-
-        //Ajax call itself
-        jQuery.ajax({
+    function filter_posts() {
+        var filterCatVal = jQuery( '.categoryfilter' ).find(":selected").val();
+         //Ajax call itself
+         jQuery.ajax({
             type: 'post',
             url:  ajaxlazyload.ajaxurl,
             data: {
-                action: 'all_district_lazy_load',//action hook name
-                offset: postOffset,
-                nonce: nonce
+                action: 'ad_category_filter', //action hook name
+                categoryfilter: filterCatVal,
+                nonce: nonce 
             },
             //Ajax call is successful
             success: function ( html ) {
-                if ( window.matchMedia("(max-width: 767px)").matches ) {
-                    //alert(ajaxCounter);
-                    if ( html.length == 0 ) {
-                        jQuery('.button-wrapper').text("End of Recipes");
-                    }
-                    ajaxCounter += 1;
-                    var newRowCount = ajaxCounter * postsPerPage + 15;
-                    jQuery('.grid-container').css( "grid-template-rows", "repeat(" + newRowCount + ", 250px)" );
+                if ( html.length != 0 && morePostsBtn.text() == "End of Recipes") {
+                    morePostsBtn.text("Load More Posts");
                 }
-//                 else if ( window.matchMedia("(max-width: 767px)").matches && ajaxCounter == 1 ) {
-//                    alert(ajaxCounter);
-//                    jQuery('.grid-container').css( "grid-template-rows", "repeat(41, 250px)" );
-//                    ajaxCounter += 1;
-//                }
-                
-                jQuery(".grid-container").append( html );
-                moveButton();
-                jQuery('.anim-loading').removeClass( 'spinner' );
-                //jQuery(".grid-container").append( tempButton );
+
+                var cachedMorePostsBtn = jQuery('.button-wrapper').detach();
+                jQuery(".grid-container").empty().append( html );
+                moveButton(cachedMorePostsBtn);
+
                 //Add click event handler to all grid items including dynamic
                 jQuery( '.outer, .goToRecipe' ).on('click', function() {
                     var page = {
                     scroll: jQuery(this).scrollTop(),
                     //Avoid duplicate loading of server-rendered posts
-                    html: jQuery(".grid-container").html().slice( 10 )
+                    html: jQuery(".grid-container").html().slice()//THIS IS NOT WORKING, SOME POSTS BEING DUPLICATED
                 };
                 sessionStorage.setItem('newHtml', JSON.stringify(page));
             });  
             },
             //Ajax call is not successful, still remove lock in order to try again
             error: function () {
-
+                console.log("there was an error with the ajax request");
             }
         });
     }
 
-function moveButton() {
-    var tempButton = jQuery('.button-wrapper').detach();
-    jQuery(".grid-container").append( tempButton[0] );
+    function ajax_next_posts() {
+        var postOffset = jQuery( '.outer' ).length;
+        var filterCatVal = jQuery( '.categoryfilter' ).find(":selected").val();
+        var postsData = {
+            action: 'all_district_lazy_load',//action hook name
+            offset: postOffset,
+            nonce: nonce
+        }
+
+        if (filterCatVal != null) {
+            postsData['categoryfilter'] = filterCatVal;
+        }
+        //Ajax call itself
+        jQuery.ajax({
+            type: 'post',
+            url:  ajaxlazyload.ajaxurl,
+            data: postsData,
+            //Ajax call is successful
+            success: function ( html ) {
+                //MOVED THIS OUT OF COMMENTED CODE TO APPLY AT ALL SCREEN SIZES
+                if ( html.length == 0 ) {
+                    console.log('hello from inside of successful eval!!!!!!');
+                    console.log(morePostsBtn);
+                    morePostsBtn.text("End of Recipes");
+                }
+
+                jQuery(".grid-container").append( html );
+                moveButton();
+                jQuery('.anim-loading').removeClass( 'spinner' );
+                //Add click event handler to all grid items including dynamic
+                jQuery( '.outer, .goToRecipe' ).on('click', function() {
+                    var page = {
+                    scroll: jQuery(this).scrollTop(),
+                    //Avoid duplicate loading of server-rendered posts
+                    html: jQuery(".grid-container").html().slice( 16 )//THIS IS NOT WORKING, SOME POSTS BEING DUPLICATED
+                };
+                sessionStorage.setItem('newHtml', JSON.stringify(page));
+            });  
+            },
+            //Ajax call is not successful, still remove lock in order to try again
+            error: function () {
+                console.log('next posts error');
+            }
+        });
+    }
+
+function moveButton(cachedBtn) {
+    if (!cachedBtn) {
+        var tempButton = jQuery('.button-wrapper').detach();
+        jQuery(".grid-container").append( tempButton[0] );
+    } else {
+        jQuery(".grid-container").append( cachedBtn[0] );
+    }
+   
 }
+
+});
