@@ -91,6 +91,17 @@ var morePostsBtn = jQuery( '#more-posts-button' );
                 }
 
                 jQuery(".grid-container").append( html );
+                if (window.matchMedia("(min-width: 768px)").matches) {
+                    var cardsAfterAjax = jQuery('.outer').length;
+                    var remainder = cardsAfterAjax % 3;
+                    var divider = cardsAfterAjax - remainder;
+                    var newRowNumb = divider / 3;
+                    jQuery(".grid-container").css("grid-template-rows", "repeat(" + newRowNumb + ", 275px");
+                  } else {//mobile screens
+                    var cardsAfterAjax = jQuery('.outer').length;
+                    jQuery(".grid-container").css("grid-template-rows", "repeat(" + cardsAfterAjax + ", 250px");
+                  }
+
                 moveButton();
                 jQuery('.anim-loading').removeClass( 'spinner' );
                 //Add click event handler to all grid items including dynamic
