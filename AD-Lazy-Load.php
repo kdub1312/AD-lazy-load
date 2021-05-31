@@ -13,7 +13,7 @@ License: GPLv2
 function ad_lazy_load_enqueue_script() {   
     $randVer = rand(1, 100);//to pass as a random version number to wp_enqueue_script for cache busting
     if ( is_page_template('recipe-cards.php') ) {
-        wp_register_style( 'ad_lazy_load_styles', plugin_dir_url( __FILE__ ) . 'css/adll-styles.css', array( 'bootstrap-css' ), '1.0' );
+        wp_register_style( 'ad_lazy_load_styles', plugin_dir_url( __FILE__ ) . 'css/adll-styles.css', array( 'bootstrap-css' ), '1.1' );
         wp_enqueue_style( 'ad_lazy_load_styles' );
 
         wp_enqueue_script( 'ad_lazy_load_script', plugin_dir_url( __FILE__ ) . 'js/adll.js', array('jquery'), $randVer );
@@ -33,7 +33,7 @@ function ajax_load_more_button() {
    } 
     
         $args = array(
-            'post_type' => 'recipe',
+            'post_type' => array('recipe', 'fc_recipe'),
             'post_status' => 'publish',
             'offset' => $_POST['offset'],
             'posts_per_page' => 16,
@@ -68,7 +68,7 @@ function ad_category_filter_function(){
      } 
 
     $args = array(
-            'post_type' => 'recipe',
+            'post_type' => array('recipe', 'fc_recipe'),
             'post_status' => 'publish',
             'posts_per_page' => 16,
             'category_name' => $_POST['categoryfilter'] //<-- this needs to be the slug value. will need to output slug as value of option element
