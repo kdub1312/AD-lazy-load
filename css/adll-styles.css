@@ -2,48 +2,48 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: repeat(1,1fr [col-start]);
-    grid-template-rows: repeat(15, 250px);
+    grid-template-rows: repeat(16, 250px);
 }
 @media screen and (min-width: 365px) {
     .grid-container {
-        grid-template-rows: repeat(15, 250px);
+        grid-template-rows: repeat(16, 250px);
     }
 }
 @media screen and (min-width: 415px) {
     .grid-container {
-        grid-template-rows: repeat(15, 275px);
+        grid-template-rows: repeat(16, 275px);
     }
 }
 @media screen and (min-width: 460px) {
     .grid-container {
-        grid-template-rows: repeat(15, 325px);
+        grid-template-rows: repeat(16, 325px);
     }
 }
 @media screen and (min-width: 560px) {
     .grid-container {
-        grid-template-rows: repeat(15, 375px);
+        grid-template-rows: repeat(16, 375px);
     }
 }
 @media screen and (min-width: 650px) {
     .grid-container {
-        grid-template-rows: repeat(15, 450px);
+        grid-template-rows: repeat(16, 450px);
     }
 }
 @media screen and (min-width: 768px) {
     .grid-container {
-        grid-template-rows: repeat(4, 250px);
+        grid-template-rows: repeat(6, 250px);
         grid-template-columns: repeat(3,1fr [col-start]);
     }
 }
 @media screen and (min-width: 992px) {
     .grid-container {
-        grid-template-rows: repeat(4, 275px);
+        grid-template-rows: repeat(6, 275px);
         grid-template-columns: repeat(3,1fr [col-start]);
     }
 }
 @media screen and (min-width: 1175px) {
     .grid-container {
-        grid-template-rows: repeat(4, 300px);
+        grid-template-rows: repeat(6, 275px);
         grid-template-columns: repeat(3,1fr [col-start]);
     }
 }
@@ -63,12 +63,19 @@
 }
 .outer {
     background: linear-gradient(141deg, #98E25F 0%, #fff 99%);
+    position: relative;
 }
 .outer.premierAccess {
     background: linear-gradient(141deg, #EB4162 0%, #fff 99%);
 }
 .inner {
     position: relative;
+}
+@media screen and (max-width: 767px) {
+    .inner {
+        max-height: 210px;
+        overflow: hidden;   
+    }
 }
 .outer h2 {
     position: absolute;
@@ -86,7 +93,11 @@
     background: rgba(0,0,0,.3);
 }
 .recipeInfo {
-   padding: 5px;
+    padding: 5px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(141deg, #3FA294 0%, #fff 99%);
 }
 @media screen and (min-width: 768px) {
     .recipeInfo {
@@ -103,11 +114,18 @@
 .premierAccess .recipeInfo {
     color: #fff;
 }
+
+@media screen and (min-width: 768px) {
+    .premierAccess .recipeInfo {
+        background: linear-gradient(141deg, #E798A6 0%, #fff 99%);
+    }
+}
 .recipeThumbnailList {
     list-style-type: none;
     font-size: 14px;
     font-family: 'Open Sans';
     position: relative;
+    margin-bottom: 0;
 }
 .goToRecipeMobile {
 background-color: rgba(255,255,255,.5);
@@ -176,4 +194,19 @@ transform: scale(1.0);
     text-align: center;
     background-color: #98E25F;
     min-height: 225px;
+}
+/*FILTERING STYLES*/
+#categoryFilter {
+    background-color: #E798A6;
+    color: #fff;
+    position: relative;
+    bottom: 2px;
+}
+@media screen and (max-width: 767px) {
+    #categoryFilter {
+        margin-top: 5px;
+    }
+}
+.categoryfilter {
+    font-size: 1.5rem;
 }
