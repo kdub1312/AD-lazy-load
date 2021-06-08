@@ -15,6 +15,15 @@ jQuery(document).ready(function () {
         const searchTerm = document.getElementById("searchInput").value;
         if(searchTerm.length < 1) return alert('Search must not be empty!')
         console.log('searching...', searchTerm)
+        jQuery.ajax({
+            type: 'POST',
+            url: "https://bariatricfoodcoach-dev.sentree.io/?s=chicken&post_type=recipe",
+            data: {},
+            success: (response) => {
+                console.log(response)
+            }
+
+        })
     })
 
     //Load more posts button
