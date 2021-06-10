@@ -6,6 +6,7 @@ const searchBar = `
 </div>
 `
 
+// https://demo.wprecipemaker.com/wp-json/wp/v2/wprm_recipe/?wprm_ingredient=21
 jQuery(document).ready(function () {
     //SEARCH BAR
     // Add to page
@@ -16,11 +17,13 @@ jQuery(document).ready(function () {
         if(searchTerm.length < 1) return alert('Search must not be empty!')
         console.log('searching...', searchTerm)
         jQuery.ajax({
-            type: 'POST',
-            url: "https://bariatricfoodcoach-dev.sentree.io/?s=chicken&post_type=recipe",
+            type: 'get',
+            contentType: "application/json",
+            url: "https://bariatricfoodcoach-dev.sentree.io/wp-json/wp/v2/wprm_recipe/",
             data: {},
             success: (response) => {
                 console.log(response)
+                jQuery(".grid-container").append(response);
             }
 
         })
@@ -71,6 +74,7 @@ jQuery(document).ready(function () {
                 }
 
                 var cachedMorePostsBtn = jQuery('.button-wrapper').detach();
+                console.log('html', html)
                 jQuery(".grid-container").empty().append(html);
                 moveButton(cachedMorePostsBtn);
 
