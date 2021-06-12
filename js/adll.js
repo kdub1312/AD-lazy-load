@@ -1,23 +1,32 @@
 /**************** COMPONENTS *********************/
 const searchBar = `
 <div class="searchContainer">
-    <input value="" id="searchInput" class="btn btn-default" />
+    <input value="" id="searchInput" class="btn btn-default" placeholder="type something..."/>
     <button class="searchBtn">Search Recipes</button>
 </div>
 `
-const Recipe = (data) => (`<div>${data}</div>`)
 
-// https://demo.wprecipemaker.com/wp-json/wp/v2/wprm_recipe/?wprm_ingredient=21
+/**** CONSTANTS *****/
+const FILTERING = 'FILTERING';
+const SEARCHING = 'SEARCHING';
+
 jQuery(document).ready(function () {
+    // Add searchbar to page
+    jQuery('#main').prepend(searchBar)
+
+    // filtering or searching
+    let actionType = null;
+
     //Load more posts button
     var morePostsBtn = jQuery('#more-posts-button');
-    // console.log(morePostsBtn);
+
+    // Declaring it once here
+    var nonce = jQuery('#more-posts-button').attr("data-nonce");
+
     //MORE POSTS BUTTON
     jQuery('#more-posts-button').on("click", function (e) {
         e.preventDefault();
         jQuery('.anim-loading').addClass('spinner');
-        nonce = jQuery(this).attr("data-nonce");
-        console.log('nonce', nonce)
         ajax_next_posts();
     });
 
@@ -25,50 +34,63 @@ jQuery(document).ready(function () {
     jQuery('#categoryFilter').on('click', function (e) {
         console.log("button clicked!!");
         e.preventDefault();
-        nonce = jQuery('#more-posts-button').attr("data-nonce");
+        // set our action to filtering
+        actionType = FILTERING;
         filter_posts();
     });
 
-     //SEARCH BAR
-    // Add to page
-    jQuery('#main').prepend(searchBar)
+    //SEARCH BAR
     // Attach a click event to the search button
-    jQuery('.searchBtn').on('click', e => {
-        e.preventDefault();
-        const searchTerm = document.getElementById("searchInput").value;
-        const nonceSearch = jQuery('#more-posts-button').attr("data-nonce");
-        if(searchTerm.length < 1) return alert('Search must not be empty!')
-        console.log('searching...', searchTerm, nonceSearch)
-        console.log(ajaxlazyload.ajaxurl)
+    jQuery('.searchBtn').on('click', search_posts)
 
+
+    if (!sessionStorage) return;
+
+    // var savedHtml = sessionStorage.getItem("newHtml");
+    // console.log('saved html', sessionStorage)
+    // var parsedHtml = JSON.parse(savedHtml);
+    // jQuery(".grid-container").append(parsedHtml.html);
+    moveButton();
+    function search_posts(e) {
+        e.preventDefault();
+        // set our action to searching
+        actionType = SEARCHING;
+
+        // grab search term
+        const searchTerm = document.getElementById("searchInput").value;
+
+        // do validation here...
+        if (searchTerm.length < 1) return alert('Search must not be empty!')
+
+        // make ajax request
         jQuery.ajax({
             type: 'post',
             url: ajaxlazyload.ajaxurl,
             data: {
                 action: 'ad_search', //action hook name
                 categoryfilter: searchTerm,
-                nonce: nonceSearch
+                nonce: nonce
             },
+            // handle the successful response
             success: (response) => {
-                console.log('res', response)
+                // see if we need to change btn text
+                if (response.length != 0) morePostsBtn.text("Load More Posts");
+                if (response.length === 0) morePostsBtn.text("End of Recipes");
+                const cachedMorePostsBtn = jQuery('.button-wrapper').detach();
                 jQuery(".grid-container").empty().append(response);
+                moveButton(cachedMorePostsBtn);
+            },
+            //Ajax call is not successful, still remove lock in order to try again
+            error: function (err) {
+                console.log("there was an error with the ajax request", err);
             }
 
         })
-    })
-    if (!sessionStorage) {
-        return;
     }
-    // var savedHtml = sessionStorage.getItem("newHtml");
-    // console.log('saved html', sessionStorage)
-    // var parsedHtml = JSON.parse(savedHtml);
-    // jQuery(".grid-container").append(parsedHtml.html);
-    moveButton();
 
     function filter_posts() {
         var filterCatVal = jQuery('.categoryfilter').find(":selected").val();
         //Ajax call itself
-        console.log(ajaxlazyload.ajaxurl)
         jQuery.ajax({
             type: 'post',
             url: ajaxlazyload.ajaxurl,
@@ -84,7 +106,6 @@ jQuery(document).ready(function () {
                 }
 
                 var cachedMorePostsBtn = jQuery('.button-wrapper').detach();
-                console.log('html', html)
                 jQuery(".grid-container").empty().append(html);
                 moveButton(cachedMorePostsBtn);
 
@@ -107,11 +128,20 @@ jQuery(document).ready(function () {
 
     function ajax_next_posts() {
         var postOffset = jQuery('.outer').length;
-        var filterCatVal = jQuery('.categoryfilter').find(":selected").val();
+
+        // check to see if we are filtering, searching or neither.
+        let filterCatVal = null;
+        if (actionType === FILTERING) {
+            filterCatVal = jQuery('.categoryfilter').find(":selected").val();
+        } else if (actionType === SEARCHING) {
+            filterCatVal = document.getElementById("searchInput").value;
+        }
+
         var postsData = {
             action: 'all_district_lazy_load',//action hook name
             offset: postOffset,
-            nonce: nonce
+            nonce: nonce,
+            actionType,
         }
 
         if (filterCatVal != null) {
@@ -127,7 +157,6 @@ jQuery(document).ready(function () {
                 //MOVED THIS OUT OF COMMENTED CODE TO APPLY AT ALL SCREEN SIZES
                 if (html.length == 0) {
                     console.log('hello from inside of successful eval!!!!!!');
-                    console.log(morePostsBtn);
                     morePostsBtn.text("End of Recipes");
                 }
 

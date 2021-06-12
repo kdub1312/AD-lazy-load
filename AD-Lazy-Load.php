@@ -38,9 +38,17 @@ function ajax_load_more_button() {
             'offset' => $_POST['offset'],
             'posts_per_page' => 16,
             'meta_query' => array(array('key' => '_thumbnail_id')),
-            'category_name' => $_POST['categoryfilter']
+            'category_name' => $_POST['categoryfilter'],
+            's' => $_POST['categoryfilter']
         );
-
+        // if filtering, don't add search in there
+        if($_POST['actionType'] === 'FILTERING') {
+            unset($args['s']);
+        } // vice versa, if searching, don't need filter
+        if($_POST['actionType'] === 'SEARCHING') {
+            unset($args['category_name']);
+        }
+        
         $ajax_posts = new WP_Query($args);
 
     if ( $ajax_posts->have_posts() ) {
@@ -116,18 +124,8 @@ function ad_search_function(){
             'posts_per_page' => 16,
             's' => $_POST['categoryfilter'] //<-- this needs to be the slug value. will need to output slug as value of option element
     );
-	// for taxonomies / categories
-	// if( isset( $_POST['categoryfilter'] ) )
-    //     $args['tax_query'] = array(
-    //         array(
-    //             'taxonomy' => 'recipe',
-    //             'field' => 'id',
-    //             'terms' => 'Drinks'//$_POST['categoryfilter']
-    //         )
-    //     );
  
- 
-        $ajax_posts = new WP_Query($args);
+    $ajax_posts = new WP_Query($args);
 
     if ( $ajax_posts->have_posts() ) {
         while( $ajax_posts->have_posts() ) {
