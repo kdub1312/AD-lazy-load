@@ -53,6 +53,8 @@ jQuery(document).ready(function () {
     moveButton();
     function search_posts(e) {
         e.preventDefault();
+        // reset select to empty
+        jQuery('.categoryfilter')[0].value = ""
         // set our action to searching
         actionType = SEARCHING;
 
@@ -89,6 +91,8 @@ jQuery(document).ready(function () {
     }
 
     function filter_posts() {
+        // reset search value to empty
+        document.getElementById("searchInput").value = ""
         var filterCatVal = jQuery('.categoryfilter').find(":selected").val();
         //Ajax call itself
         jQuery.ajax({
