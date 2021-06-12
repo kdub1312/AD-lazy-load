@@ -6,6 +6,7 @@ var morePostsBtn = jQuery( '#more-posts-button' );
     jQuery( '#more-posts-button' ).on("click", function( e ) {
         e.preventDefault(); 
         jQuery('.anim-loading').addClass( 'spinner' );
+        jQuery('#more-posts-button').hide();
         nonce = jQuery(this).attr("data-nonce");
         ajax_next_posts(); 
     }); 
@@ -104,6 +105,7 @@ var morePostsBtn = jQuery( '#more-posts-button' );
 
                 moveButton();
                 jQuery('.anim-loading').removeClass( 'spinner' );
+                jQuery('#more-posts-button').show();
                 //Add click event handler to all grid items including dynamic
                 jQuery( '.outer, .goToRecipe' ).on('click', function() {
                     var page = {
