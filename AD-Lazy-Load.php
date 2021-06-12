@@ -114,17 +114,17 @@ function ad_search_function(){
             'post_type' => array('recipe', 'fc_recipe'),
             'post_status' => 'publish',
             'posts_per_page' => 16,
-            'category_name' => $_POST['categoryfilter'] //<-- this needs to be the slug value. will need to output slug as value of option element
+            's' => $_POST['categoryfilter'] //<-- this needs to be the slug value. will need to output slug as value of option element
     );
 	// for taxonomies / categories
-	if( isset( $_POST['categoryfilter'] ) )
-        $args['tax_query'] = array(
-            array(
-                'taxonomy' => 'category',
-                'field' => 'id',
-                'terms' => 'Drinks'//$_POST['categoryfilter']
-            )
-        );
+	// if( isset( $_POST['categoryfilter'] ) )
+    //     $args['tax_query'] = array(
+    //         array(
+    //             'taxonomy' => 'recipe',
+    //             'field' => 'id',
+    //             'terms' => 'Drinks'//$_POST['categoryfilter']
+    //         )
+    //     );
  
  
         $ajax_posts = new WP_Query($args);

@@ -46,7 +46,7 @@ jQuery(document).ready(function () {
             url: ajaxlazyload.ajaxurl,
             data: {
                 action: 'ad_search', //action hook name
-                categoryfilter: 'beef',
+                categoryfilter: searchTerm,
                 nonce: nonceSearch
             },
             success: (response) => {
