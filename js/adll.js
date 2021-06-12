@@ -5,38 +5,19 @@ const searchBar = `
     <button class="searchBtn">Search Recipes</button>
 </div>
 `
+const Recipe = (data) => (`<div>${data}</div>`)
 
 // https://demo.wprecipemaker.com/wp-json/wp/v2/wprm_recipe/?wprm_ingredient=21
 jQuery(document).ready(function () {
-    //SEARCH BAR
-    // Add to page
-    jQuery('#main').prepend(searchBar)
-    // Attach a click event to the search button
-    jQuery('.searchBtn').on('click', e => {
-        const searchTerm = document.getElementById("searchInput").value;
-        if(searchTerm.length < 1) return alert('Search must not be empty!')
-        console.log('searching...', searchTerm)
-        jQuery.ajax({
-            type: 'get',
-            contentType: "application/json",
-            url: "https://bariatricfoodcoach-dev.sentree.io/wp-json/wp/v2/wprm_recipe/",
-            data: {},
-            success: (response) => {
-                console.log(response)
-                jQuery(".grid-container").append(response);
-            }
-
-        })
-    })
-
     //Load more posts button
     var morePostsBtn = jQuery('#more-posts-button');
-    console.log(morePostsBtn);
+    // console.log(morePostsBtn);
     //MORE POSTS BUTTON
     jQuery('#more-posts-button').on("click", function (e) {
         e.preventDefault();
         jQuery('.anim-loading').addClass('spinner');
         nonce = jQuery(this).attr("data-nonce");
+        console.log('nonce', nonce)
         ajax_next_posts();
     });
 
@@ -47,6 +28,34 @@ jQuery(document).ready(function () {
         nonce = jQuery('#more-posts-button').attr("data-nonce");
         filter_posts();
     });
+
+     //SEARCH BAR
+    // Add to page
+    jQuery('#main').prepend(searchBar)
+    // Attach a click event to the search button
+    jQuery('.searchBtn').on('click', e => {
+        e.preventDefault();
+        const searchTerm = document.getElementById("searchInput").value;
+        const nonceSearch = jQuery('#more-posts-button').attr("data-nonce");
+        if(searchTerm.length < 1) return alert('Search must not be empty!')
+        console.log('searching...', searchTerm, nonceSearch)
+        console.log(ajaxlazyload.ajaxurl)
+
+        jQuery.ajax({
+            type: 'post',
+            url: ajaxlazyload.ajaxurl,
+            data: {
+                action: 'ad_search', //action hook name
+                categoryfilter: 'beef',
+                nonce: nonceSearch
+            },
+            success: (response) => {
+                console.log('res', response)
+                jQuery(".grid-container").empty().append(response);
+            }
+
+        })
+    })
     if (!sessionStorage) {
         return;
     }
@@ -59,6 +68,7 @@ jQuery(document).ready(function () {
     function filter_posts() {
         var filterCatVal = jQuery('.categoryfilter').find(":selected").val();
         //Ajax call itself
+        console.log(ajaxlazyload.ajaxurl)
         jQuery.ajax({
             type: 'post',
             url: ajaxlazyload.ajaxurl,
