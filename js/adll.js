@@ -1,10 +1,10 @@
 /**************** COMPONENTS *********************/
-const searchBar = `
-<div class="searchContainer">
-    <input value="" id="searchInput" class="btn btn-default" placeholder="type something..."/>
-    <button class="searchBtn">Search Recipes</button>
-</div>
-`
+// const searchBar = `
+// <div class="searchContainer">
+//     <input value="" id="searchInput" placeholder="type something..."/>
+//     <button class="searchBtn">Search Recipes</button>
+// </div>
+// `
 
 /**** CONSTANTS *****/
 const FILTERING = 'FILTERING';
@@ -12,7 +12,7 @@ const SEARCHING = 'SEARCHING';
 
 jQuery(document).ready(function () {
     // Add searchbar to page
-    jQuery('#main').prepend(searchBar)
+    // jQuery('#main').prepend(searchBar)
 
     // filtering or searching
     let actionType = null;
