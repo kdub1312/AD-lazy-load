@@ -177,7 +177,8 @@ jQuery(document).ready(function () {
                 }
 
                 moveButton();
-                jQuery('.anim-loading').removeClass('spinner');
+                jQuery('.anim-loading').removeClass( 'spinner' );
+                jQuery('#more-posts-button').show();
                 //Add click event handler to all grid items including dynamic
                 jQuery('.outer, .goToRecipe').on('click', function () {
                     var page = {
