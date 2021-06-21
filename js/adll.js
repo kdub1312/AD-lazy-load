@@ -27,6 +27,7 @@ jQuery(document).ready(function () {
     jQuery('#more-posts-button').on("click", function (e) {
         e.preventDefault();
         jQuery('.anim-loading').addClass('spinner');
+        jQuery('#more-posts-button').hide();
         ajax_next_posts();
     });
 
