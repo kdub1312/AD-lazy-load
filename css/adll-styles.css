@@ -143,12 +143,12 @@
 }
 #more-posts-button {
 /*        background-color: rgb(255,33,96);*/
-    background-color: #56AF40;
+    background-color: #3fa294;
     /* margin-top: calc( 25% - 13px ); */
 }
 /*spinner animation*/
 .spinner {
-    background-color: #56AF40;
+    background-color: #3fa294;
   margin: 25px auto 0;
   width: 70px;
   text-align: center;
@@ -203,7 +203,7 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: #56AF40;
+    background-color: #3fa294;
     min-height: 225px;
 }
 /*FILTERING STYLES*/
