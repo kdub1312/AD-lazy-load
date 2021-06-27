@@ -3,25 +3,18 @@ const FILTERING = 'FILTERING';
 const SEARCHING = 'SEARCHING';
 
 jQuery(document).ready(function () {
-
     // filtering or searching
     let actionType = null;
-
     //Load more posts button
     var $morePostsBtn = jQuery('#more-posts-button');
-
     //Load loading animation element
     var $animLoadEl = jQuery('.anim-loading');
-
     //Load filter select box
     var $filterSelectBox = jQuery('.categoryfilter');
-
     //Load search input
     var $searchInput = jQuery("#searchInput");
-
     //Load grid container
     var $gridContainer = jQuery(".grid-container");
-
     // Declaring nonce once here
     var nonce = $morePostsBtn.attr("data-nonce");
 
@@ -34,15 +27,9 @@ jQuery(document).ready(function () {
     });
 
     //CATEGORY FILTER
-    jQuery('#categoryFilter').on('click', function (e) {
-        e.preventDefault();
-        // set our action to filtering
-        actionType = FILTERING;
-        filter_posts();
-    });
+    jQuery('#categoryFilter').on('click', filter_posts);
 
     //SEARCH BAR
-    // Attach a click event to the search button
     jQuery('.searchBtn').on('click', search_posts)
 
     if (!sessionStorage) return;
@@ -51,10 +38,10 @@ jQuery(document).ready(function () {
 
     function search_posts(e) {
         e.preventDefault();
-        // reset select to empty
-        $filterSelectBox[0].value = "";
         // set our action to searching
         actionType = SEARCHING;
+        // reset select to empty
+        $filterSelectBox[0].value = "";
 
         // grab search term
         const searchTerm = $searchInput.val();
@@ -88,9 +75,13 @@ jQuery(document).ready(function () {
         })
     }
 
-    function filter_posts() {
+    function filter_posts(e) {
+        e.preventDefault();
+        // set our action to filtering
+        actionType = FILTERING;
         // reset search value to empty
         $searchInput.val("");
+
         var filterCatVal = $filterSelectBox.find(":selected").val();
         //Ajax call itself
         jQuery.ajax({
