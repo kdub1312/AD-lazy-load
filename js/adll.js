@@ -18,6 +18,20 @@ jQuery(document).ready(function () {
     // Declaring nonce once here
     var nonce = $morePostsBtn.attr("data-nonce");
 
+    // check and see if we are in a session
+    const searchState = sessionStorage.getItem('search');
+    const filterState = sessionStorage.getItem('filter');
+
+    if(searchState) {
+        $searchInput.val(searchState)
+        $gridContainer.hide()
+        search_posts()
+    }
+    if(filterState){
+         $filterSelectBox.val(filterState)
+         $gridContainer.hide()
+         filter_posts()
+    }
     //MORE POSTS BUTTON
     $morePostsBtn.on("click", function (e) {
         e.preventDefault();
@@ -32,12 +46,13 @@ jQuery(document).ready(function () {
     //SEARCH BAR
     jQuery('.searchBtn').on('click', search_posts)
 
-    if (!sessionStorage) return;
+    // if (!sessionStorage) return;
 
-    moveButton();
+    // moveButton();
 
     function search_posts(e) {
-        e.preventDefault();
+        console.log('starting search')
+        if(e) e.preventDefault();
         // set our action to searching
         actionType = SEARCHING;
         // reset select to empty
@@ -45,6 +60,12 @@ jQuery(document).ready(function () {
 
         // grab search term
         const searchTerm = $searchInput.val();
+
+        // set session storage for seaching
+        sessionStorage.setItem('search', searchTerm);
+        
+        // remove the filtering from storage
+        sessionStorage.removeItem('filter');
 
         // do validation here...
         if (searchTerm.length < 1) return alert('Search must not be empty!')
@@ -65,6 +86,7 @@ jQuery(document).ready(function () {
                 if (response.length === 0) $morePostsBtn.text("End of Recipes");
                 const cachedMorePostsBtn = jQuery('.button-wrapper').detach();
                 $gridContainer.empty().append(response);
+                $gridContainer.show()
                 moveButton(cachedMorePostsBtn);
             },
             //Ajax call is not successful, still remove lock in order to try again
@@ -76,13 +98,20 @@ jQuery(document).ready(function () {
     }
 
     function filter_posts(e) {
-        e.preventDefault();
+        if(e) e.preventDefault();
         // set our action to filtering
         actionType = FILTERING;
         // reset search value to empty
         $searchInput.val("");
 
-        var filterCatVal = $filterSelectBox.find(":selected").val();
+        const filterCatVal = $filterSelectBox.find(":selected").val();
+
+        // set session storage for filtering
+        sessionStorage.setItem('filter', filterCatVal);
+
+        // remove the search from storage
+        sessionStorage.removeItem('search');
+
         //Ajax call itself
         jQuery.ajax({
             type: 'post',
@@ -98,10 +127,10 @@ jQuery(document).ready(function () {
                     $morePostsBtn.text("Load More Posts");
                 }
 
-                var cachedMorePostsBtn = jQuery('.button-wrapper').detach();
+                const cachedMorePostsBtn = jQuery('.button-wrapper').detach();
                 $gridContainer.empty().append(html);
+                $gridContainer.show()
                 moveButton(cachedMorePostsBtn);
-
             },
             //Ajax call is not successful, still remove lock in order to try again
             error: function () {
@@ -111,7 +140,7 @@ jQuery(document).ready(function () {
     }
 
     function ajax_next_posts() {
-        var postOffset = jQuery('.outer').length;
+        const postOffset = jQuery('.outer').length;
 
         // check to see if we are filtering, searching or neither.
         let filterCatVal = null;
@@ -121,7 +150,7 @@ jQuery(document).ready(function () {
             filterCatVal = $searchInput.val();
         }
 
-        var postsData = {
+        const postsData = {
             action: 'all_district_lazy_load',//action hook name
             offset: postOffset,
             nonce: nonce,
@@ -146,13 +175,13 @@ jQuery(document).ready(function () {
                 $gridContainer.append(html);
                 
                 if (window.matchMedia("(min-width: 768px)").matches) {
-                    var cardsAfterAjax = jQuery('.outer').length;
-                    var remainder = cardsAfterAjax % 3;
-                    var divider = cardsAfterAjax - remainder;
-                    var newRowNumb = divider / 3;
+                    const cardsAfterAjax = jQuery('.outer').length;
+                    const remainder = cardsAfterAjax % 3;
+                    const divider = cardsAfterAjax - remainder;
+                    const newRowNumb = divider / 3;
                     $gridContainer.css("grid-template-rows", "repeat(" + newRowNumb + ", 275px");
                 } else {//mobile screens
-                    var cardsAfterAjax = jQuery('.outer').length;
+                    const cardsAfterAjax = jQuery('.outer').length;
                     $gridContainer.css("grid-template-rows", "repeat(" + cardsAfterAjax + ", 250px");
                 }
 
@@ -170,12 +199,14 @@ jQuery(document).ready(function () {
 
     function moveButton(cachedBtn) {
         if (!cachedBtn) {
+            console.log('no cache btn')
             var tempButton = jQuery('.button-wrapper').detach();
             $gridContainer.append(tempButton[0]);
         } else {
+            console.log('cache btn', cachedBtn[0])
+
             $gridContainer.append(cachedBtn[0]);
         }
-
     }
 
 });
