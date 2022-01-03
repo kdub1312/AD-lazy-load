@@ -3,15 +3,13 @@ const FILTERING = "FILTERING";
 const SEARCHING = "SEARCHING";
 
 window.onload = function () {
-    const postsPerPage = 16 // Important!! check php file. If that changes, then this must change
-  // filtering or searching
-  let actionType = null;
+  const postsPerPage = 16 // Important!! check AD-Lazy-Load php file for per posts. If that changes, then this must change
   // keep track of more post clicks
   let pageCount = sessionStorage.getItem("page")
-    ? Number(sessionStorage.getItem("page"))
-    : 0;
-    console.log('here', pageCount)
-
+  ? Number(sessionStorage.getItem("page"))
+  : 0;
+  // filtering or searching
+  let actionType = null;
   //Load more posts button
   var $morePostsBtn = jQuery("#more-posts-button");
   //Load loading animation element
@@ -29,34 +27,16 @@ window.onload = function () {
   const searchState = sessionStorage.getItem("search");
   const filterState = sessionStorage.getItem("filter");
 
+  // if searching previously, get the previous state
   if (searchState) {
-    $searchInput.val(searchState);
+    $searchInput.val(searchState); // set the input
     $gridContainer.hide();
-    search_posts().then(() => {
-        console.log("before loop s", pageCount, typeof pageCount);
-
-        let postCount = postsPerPage
-        for (let i = 0; i < pageCount; i++) {
-          console.log("in loop s", postCount);
-
-          ajax_next_posts(postCount);
-          postCount += postsPerPage
-          console.log("in loop s1"), postCount;
-        }
-        console.log("befo secroll");
-        const pagePostion = sessionStorage.getItem("pagePostion") ? Number(sessionStorage.getItem("pagePostion")) : 0
-        window.scrollTo(0, pagePostion)
-    });
+    search_posts().then(() => pagination()); // if we are past page 1, go to the previous posts
   }
   if (filterState) {
     $filterSelectBox.val(filterState);
     $gridContainer.hide();
-    filter_posts().then(() => {
-      for (let i = 0; i < pageCount; i++) {
-        console.log("in loop f");
-        getMorePosts();
-      }
-    });
+    filter_posts().then(() => pagination());
   }
   //MORE POSTS BUTTON
   $morePostsBtn.on("click", getMorePosts);
@@ -67,14 +47,15 @@ window.onload = function () {
   //SEARCH BAR
   jQuery(".searchBtn").on("click", search_posts);
 
-  window.addEventListener('popstate',scrollLogic );
+  document.addEventListener("click", e => {
+    const tag = e.target.tagName
+    const path = window.location.pathname
+    if(path.includes('recipe-grid') && (tag === 'IMG' || tag === 'A'))
+    {
+      sessionStorage.setItem("pagePostion", window.scrollY) 
+    }
+  })
 
-    window.addEventListener("hashchange", scrollLogic, false);
-
-    const scrollLogic = () => {
-      debugger
-      Alert('clicked inner' )
-      sessionStorage.setItem("pagePostion", window.scrollY) }
   // if (!sessionStorage) return;
 
   // moveButton();
@@ -90,14 +71,12 @@ window.onload = function () {
   }
 
   function search_posts(e) {
-    console.log("starting search");
     if (e){
       e.preventDefault();
       // set a new session storage for page - new search
       sessionStorage.setItem("page", 0);
       sessionStorage.setItem("pagePostion", 0);
       pageCount = 0
-
     } 
 
     // set our action to searching
@@ -128,7 +107,6 @@ window.onload = function () {
       },
       // handle the successful response
       success: (response) => {
-        console.log("success");
         // see if we need to change btn text
         if (response.length != 0) $morePostsBtn.text("Load More Posts");
         if (response.length === 0) $morePostsBtn.text("End of Recipes");
@@ -145,9 +123,13 @@ window.onload = function () {
   }
 
   function filter_posts(e) {
-    if (e) e.preventDefault();
-    // set a new session storage for page
-    // sessionStorage.setItem("page", 0);
+    if (e){
+      e.preventDefault();
+      // set a new session storage for page - new search
+      sessionStorage.setItem("page", 0);
+      sessionStorage.setItem("pagePostion", 0);
+      pageCount = 0
+    } 
     // set our action to filtering
     actionType = FILTERING;
     // reset search value to empty
@@ -189,7 +171,11 @@ window.onload = function () {
   }
 
   function ajax_next_posts(postOffset) {
-    if(!postOffset) postOffset = jQuery(".outer").length;
+    if(!postOffset) // means user clicked
+    {
+      postOffset = jQuery(".outer").length 
+      sessionStorage.setItem("pagePostion", window.scrollY)
+    }
 
     // check to see if we are filtering, searching or neither.
     let filterCatVal = null;
@@ -261,5 +247,21 @@ window.onload = function () {
 
       $gridContainer.append(cachedBtn[0]);
     }
+    scrollToPosition()
+  }
+
+  function scrollToPosition(){
+    const pagePostion = sessionStorage.getItem("pagePostion") ? Number(sessionStorage.getItem("pagePostion")) : 0
+    window.scrollTo(0, pagePostion)
+  }
+
+  async function pagination(){
+    let postCount = postsPerPage
+    for (let i = 0; i < pageCount; i++) {
+      await ajax_next_posts(postCount);
+      postCount += postsPerPage
+    }
   }
 };
+
+
