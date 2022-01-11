@@ -141,3 +141,46 @@ function ad_search_function(){
 }
 
 
+add_action("wp_ajax_initial_load", "ajax_initial_page_load");
+add_action("wp_ajax_nopriv_initial_load", "ajax_initial_page_load");
+
+function ajax_initial_page_load() {
+    
+    if ( !wp_verify_nonce( $_REQUEST['nonce'], "my_recipe_ajax_nonce")) {
+      exit("Something has gone wrong. Please refresh the page an try again");
+   } 
+    $posts_per_page = 16;
+
+    $args = array(
+        'post_type' => array('recipe', 'fc_recipe'),
+        'post_status' => 'publish',
+        'offset' => $_POST['offset'],
+        'posts_per_page' => $posts_per_page * $_POST['page'], // should return all we need
+        'meta_query' => array(array('key' => '_thumbnail_id')),
+        'category_name' => $_POST['categoryfilter'],
+        's' => $_POST['categoryfilter']
+    );
+    // if filtering, don't add search in there
+    if($_POST['actionType'] === 'FILTERING') {
+        unset($args['s']);
+    } // vice versa, if searching, don't need filter
+    if($_POST['actionType'] === 'SEARCHING') {
+        unset($args['category_name']);
+    }
+    
+    $ajax_posts = new WP_Query($args);
+
+    if ( $ajax_posts->have_posts() ) {
+        while( $ajax_posts->have_posts() ) {
+            $ajax_posts->the_post();
+                
+                get_template_part( 'template-parts/content', 'recipeSingleCards' );
+
+
+        }
+    }
+
+    die();
+
+
+}
