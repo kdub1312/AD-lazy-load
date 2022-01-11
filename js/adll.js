@@ -258,11 +258,12 @@ window.onload = function () {
   async function pagination(){
     let postCount = postsPerPage
     for (let i = 0; i < pageCount; i++) {
+      await ajax_next_posts(postCount);
+
       postCount += postsPerPage
     }
 
-    await ajax_next_posts(postCount);
-
+    
   }
 };
 
