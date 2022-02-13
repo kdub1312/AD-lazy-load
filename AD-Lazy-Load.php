@@ -87,7 +87,7 @@ function ad_category_filter_function(){
             array(
                 'taxonomy' => 'category',
                 'field' => 'id',
-                'terms' => 'Drinks'//$_POST['categoryfilter']
+                'terms' => $_POST['categoryfilter']
             )
         );
  
