@@ -86,7 +86,7 @@ function ad_category_filter_function(){
         $args['tax_query'] = array(
             array(
                 'taxonomy' => 'category',
-                'field' => 'id',
+                'field' => 'slug',
                 'terms' => $_POST['categoryfilter']
             )
         );
